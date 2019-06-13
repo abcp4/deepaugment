@@ -59,7 +59,8 @@ class Notebook:
         self.df = pd.concat([self.df, new_df])
 
     def save(self):
-        self.df.to_csv(self.store_path, index=False)
+        print('Save skkiped, bugfix!')
+        #self.df.to_csv(self.store_path, index=False)
 
     def add_records_from(self, notebook_path):
         notebook_df = pd.read_csv(notebook_path, comment="#")
