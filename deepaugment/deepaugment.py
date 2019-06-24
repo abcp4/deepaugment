@@ -139,6 +139,8 @@ class DeepAugment:
             trial_hyperparams = self.controller.ask()
             print("trial:", trial_no, "\n", trial_hyperparams)
             f_val = self.objective_func.evaluate(trial_no, trial_hyperparams)
+            print(f_val)
+            a = 2/0
             self.controller.tell(trial_hyperparams, f_val)
 
         self.iterated += iterations  # update number of previous iterations
