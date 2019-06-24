@@ -14,6 +14,28 @@ sys.path.insert(0, dir_of_file)
 from augmenter import augment_by_policy
 from lib.helpers import log_and_print
 
+import os
+import torch
+import torch.nn as nn
+import numpy as np
+from tensorboardX import SummaryWriter
+from config import AugmentConfig
+import utils
+from models.augment_cnn import AugmentCNN
+
+
+config = AugmentConfig()
+
+device = torch.device("cuda")
+
+# tensorboard
+writer = SummaryWriter(log_dir=os.path.join(config.path, "tb"))
+writer.add_text('config', config.as_markdown(), 0)
+
+logger = utils.get_logger(os.path.join(config.path, "{}.log".format(config.name)))
+config.print_params(logger.info)
+
+
 
 class Objective:
     """Objective class for the controller
@@ -26,6 +48,31 @@ class Objective:
         self.opt_last_n_epochs = config["opt_last_n_epochs"]
         self.notebook = notebook
         self.logging = config["logging"]
+        
+        logger.info("Logger is set - training start")
+
+        # set default gpu device id
+        torch.cuda.set_device(config.gpus[0])
+
+        # set seed
+        np.random.seed(config.seed)
+        torch.manual_seed(config.seed)
+        torch.cuda.manual_seed_all(config.seed)
+
+        torch.backends.cudnn.benchmark = True
+
+        # get data with meta info
+        #input_size, input_channels, n_classes, train_data, valid_data = utils.get_data(
+        #    config.dataset, config.data_path, config.cutout_length, validation=True)
+        input_size, input_channels, n_classes, _, _, _ = utils.get_data(
+            config.dataset, config.data_path, cutout_length=0, validation=True,validation2 = True)
+        self.input_size = input_size
+        self.input_channels = input_channels
+        self.n_classes = n_classes
+        criterion = nn.CrossEntropyLoss().to(device)
+        use_aux = config.aux_weight > 0.
+        #from evaluate
+
 
     def evaluate(self, trial_no, trial_hyperparams):
         """Evaluates objective function
@@ -45,6 +92,24 @@ class Objective:
         )
 
         sample_rewards = []
+        #pytorch
+        layers = 2
+        init_channels = 24
+        use_aux = True
+        epochs = 30
+        genotype = "Genotype(normal=[[('dil_conv_3x3', 0), ('sep_conv_5x5', 1)], [('sep_conv_3x3', 1), ('avg_pool_3x3', 0)],[('dil_conv_3x3', 1), ('dil_conv_3x3', 0)], [('sep_conv_3x3', 3), ('skip_connect', 1)]], normal_concat=range(2, 6), reduce=[[('sep_conv_3x3', 1), ('dil_conv_5x5', 0)], [('skip_connect', 0), ('sep_conv_5x5', 1)], [('sep_conv_5x5', 1),('sep_conv_5x5', 0)], [('max_pool_3x3', 1), ('sep_conv_3x3', 0)]], reduce_concat=range(2, 6))"
+        model = AugmentCNN(self.input_size, self.input_channels, init_channels, self.n_classes, layers,
+                       use_aux,genotype)
+        model = nn.DataParallel(model, device_ids=config.gpus).to(device)
+
+        # model size
+        mb_params = utils.param_size(model)
+        logger.info("Model size = {:.3f} MB".format(mb_params))
+
+        # weights optimizer
+        optimizer = torch.optim.SGD(model.parameters(), config.lr, momentum=config.momentum,weight_decay=config.weight_decay)
+        
+        """
         for sample_no in range(1, self.opt_samples + 1):
             self.child_model.load_pre_augment_weights()
             # TRAIN
@@ -56,15 +121,40 @@ class Objective:
                 trial_no, trial_hyperparams, sample_no, reward, history
             )
 
-        trial_cost = 1 - np.mean(sample_rewards)
-        self.notebook.save()
+        """
+        best_top1 = -9999
+        for epoch in range(epochs):
+            lr_scheduler.step()
+            drop_prob = config.drop_path_prob * epoch / config.epochs
+            model.module.drop_path_prob(drop_prob)
+
+            # training
+            train(train_loader, model, optimizer, criterion, epoch)
+
+            # validation
+            cur_step = (epoch+1) * len(train_loader)
+            top1 = validate(valid_loader, model, criterion, epoch, cur_step)
+
+            # save
+            if best_top1 < top1:
+                best_top1 = top1
+                is_best = True
+            else:
+                is_best = False
+        #sample_rewards.append(reward)
+        #self.notebook.record(
+        #    trial_no, trial_hyperparams, sample_no, reward, history
+        #)
+        #trial_cost = 1 - np.mean(sample_rewards)
+        #self.notebook.save()
 
         log_and_print(
             f"{str(trial_no)}, {str(trial_cost)}, {str(trial_hyperparams)}",
             self.logging,
         )
 
-        return trial_cost
+        #return trial_cost
+        return best_top1
 
     def calculate_reward(self, history):
         """Calculates reward for the history.
