@@ -11,7 +11,7 @@ file_path = realpath(__file__)
 dir_of_file = dirname(file_path)
 sys.path.insert(0, dir_of_file)
 
-from deepaugment.augmenter import augment_by_policy
+from augmenter import augment_by_policy
 from lib.helpers import log_and_print
 
 import os
