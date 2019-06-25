@@ -54,23 +54,28 @@ class Objective:
         # set default gpu device id
         torch.cuda.set_device(config.gpus[0])
 
+        aux_weight = 0.4
         # set seed
-        np.random.seed(config.seed)
-        torch.manual_seed(config.seed)
-        torch.cuda.manual_seed_all(config.seed)
+        seed =2
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
         torch.backends.cudnn.benchmark = True
+        
+        dataset = "data"
+        data_path = './data/'
 
         # get data with meta info
         #input_size, input_channels, n_classes, train_data, valid_data = utils.get_data(
         #    config.dataset, config.data_path, config.cutout_length, validation=True)
         input_size, input_channels, n_classes, _, _, _ = utils.get_data(
-            config.dataset, config.data_path, cutout_length=0, validation=True,validation2 = True)
+            dataset, data_path, cutout_length=0, validation=True,validation2 = True)
         self.input_size = input_size
         self.input_channels = input_channels
         self.n_classes = n_classes
         criterion = nn.CrossEntropyLoss().to(device)
-        use_aux = config.aux_weight > 0.
+        use_aux = aux_weight > 0.
         #from evaluate
 
 
@@ -100,7 +105,7 @@ class Objective:
         lr = 0.01
         momentum = 0.995
         weight_decay = 0.995
-        drop_path_prob = 0.1
+        drop_path_prob = 0.2
         genotype = "Genotype(normal=[[('dil_conv_3x3', 0), ('sep_conv_5x5', 1)], [('sep_conv_3x3', 1), ('avg_pool_3x3', 0)],[('dil_conv_3x3', 1), ('dil_conv_3x3', 0)], [('sep_conv_3x3', 3), ('skip_connect', 1)]], normal_concat=range(2, 6), reduce=[[('sep_conv_3x3', 1), ('dil_conv_5x5', 0)], [('skip_connect', 0), ('sep_conv_5x5', 1)], [('sep_conv_5x5', 1),('sep_conv_5x5', 0)], [('max_pool_3x3', 1), ('sep_conv_3x3', 0)]], reduce_concat=range(2, 6))"
         model = AugmentCNN(self.input_size, self.input_channels, init_channels, self.n_classes, layers,
                        use_aux,genotype)
