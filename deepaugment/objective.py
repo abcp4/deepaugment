@@ -29,8 +29,8 @@ from models.augment_cnn import AugmentCNN
 device = torch.device("cuda")
 
 # tensorboard
-writer = SummaryWriter(log_dir=os.path.join(config.path, "tb"))
-writer.add_text('config', config.as_markdown(), 0)
+#writer = SummaryWriter(log_dir=os.path.join(config.path, "tb"))
+#writer.add_text('config', config.as_markdown(), 0)
 
 #logger = utils.get_logger(os.path.join(config.path, "{}.log".format(config.name)))
 #config.print_params(logger.info)
@@ -100,6 +100,7 @@ class Objective:
         lr = 0.01
         momentum = 0.995
         weight_decay = 0.995
+        drop_path_prob = 0.1
         genotype = "Genotype(normal=[[('dil_conv_3x3', 0), ('sep_conv_5x5', 1)], [('sep_conv_3x3', 1), ('avg_pool_3x3', 0)],[('dil_conv_3x3', 1), ('dil_conv_3x3', 0)], [('sep_conv_3x3', 3), ('skip_connect', 1)]], normal_concat=range(2, 6), reduce=[[('sep_conv_3x3', 1), ('dil_conv_5x5', 0)], [('skip_connect', 0), ('sep_conv_5x5', 1)], [('sep_conv_5x5', 1),('sep_conv_5x5', 0)], [('max_pool_3x3', 1), ('sep_conv_3x3', 0)]], reduce_concat=range(2, 6))"
         model = AugmentCNN(self.input_size, self.input_channels, init_channels, self.n_classes, layers,
                        use_aux,genotype)
@@ -128,7 +129,7 @@ class Objective:
         best_top1 = -9999
         for epoch in range(epochs):
             lr_scheduler.step()
-            drop_prob = config.drop_path_prob * epoch / config.epochs
+            drop_prob = drop_path_prob * epoch / epochs
             model.module.drop_path_prob(drop_prob)
 
             # training
