@@ -52,7 +52,7 @@ class Objective:
         logger.info("Logger is set - training start")
 
         # set default gpu device id
-        torch.cuda.set_device('0')
+        torch.cuda.set_device('cuda')
 
         aux_weight = 0.4
         # set seed
