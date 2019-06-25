@@ -4,7 +4,7 @@ import glob
 import cv2
 
 def load(ttype,label,l,cv_img,labels):
-  for img in glob.glob('data/'+ttype+'/'+label+'/*.jpg'):
+  for img in glob.glob('/content/data/'+ttype+'/'+label+'/*.jpg'):
     n= cv2.imread(img)
     width = 64
     height = 64
