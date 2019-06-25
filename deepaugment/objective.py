@@ -21,7 +21,7 @@ import numpy as np
 from tensorboardX import SummaryWriter
 #from deepaugment.config import AugmentConfig
 import utils
-from deepaugment.models.augment_cnn import AugmentCNN
+from models.augment_cnn import AugmentCNN
 
 
 #config = AugmentConfig()
