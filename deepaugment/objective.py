@@ -141,6 +141,7 @@ class Objective:
                 is_best = True
             else:
                 is_best = False
+        print('best_top1:',best_top1)
         #sample_rewards.append(reward)
         #self.notebook.record(
         #    trial_no, trial_hyperparams, sample_no, reward, history
