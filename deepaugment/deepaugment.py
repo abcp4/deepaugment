@@ -14,7 +14,6 @@ from os.path import dirname, realpath
 import pathlib
 import logging
 import click
-from augmenter import augment_by_policy
 
 file_path = realpath(__file__)
 dir_of_file = dirname(file_path)
@@ -41,6 +40,7 @@ from notebook import Notebook
 from build_features import DataOp
 from image_generator import deepaugment_image_generator
 from lib.decorators import Reporter
+from augmenter import augment_by_policy
 
 logger = Reporter.logger
 
