@@ -154,6 +154,11 @@ class DeepAugment:
 
     def getDataIteration(self):
         self.trial_hyperparams = self.controller.ask()
+        self.trial_hyperparams = ["rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0]
         print("parameters:",self.trial_hyperparams)
         augmented_data = augment_by_policy(
             self.data["X_train"], self.data["y_train"], *self.trial_hyperparams
