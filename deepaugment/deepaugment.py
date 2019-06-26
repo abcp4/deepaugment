@@ -149,6 +149,25 @@ class DeepAugment:
 
         return self.top_policies
 
+    def getDataIteration(self):
+        trial_hyperparams = self.controller.ask()
+        print("trial:", trial_no, "\n", trial_hyperparams)
+        return self.data
+    
+    def setDataIteration(self,f_val):
+        trial_hyperparams = self.controller.ask()
+        print("trial:", trial_no, "\n", trial_hyperparams)
+        self.controller.tell(trial_hyperparams, f_val)
+        
+    def getTopPolicies(self):
+        self.top_policies = self.notebook.get_top_policies(20)
+        self.notebook.output_top_policies()
+        print("\ntop policies are:\n", self.top_policies)
+        return self.top_policies
+        
+
+        
+        
     def image_generator_with_top_policies(self, images, labels, batch_size=None):
         """
 
