@@ -124,6 +124,8 @@ class DeepAugment:
         )
 
         self._evaluate_objective_func_without_augmentation()
+        self.trial_hyperparams = None
+        self.trial_no = 0
 
     def optimize(self, iterations=300):
         """Optimize objective function hyperparameters using controller and child model
@@ -150,14 +152,18 @@ class DeepAugment:
         return self.top_policies
 
     def getDataIteration(self):
-        trial_hyperparams = self.controller.ask()
-        print("trial:", trial_no, "\n", trial_hyperparams)
-        return self.data
+        self.trial_hyperparams = self.controller.ask()
+        print("parameters:",self.trial_hyperparams)
+        augmented_data = augment_by_policy(
+            self.data["X_train"], self.data["y_train"], *self.trial_hyperparams
+        )
+
+        return augmented_data
     
     def setDataIteration(self,f_val):
-        trial_hyperparams = self.controller.ask()
-        print("trial:", trial_no, "\n", trial_hyperparams)
-        self.controller.tell(trial_hyperparams, f_val)
+        self.controller.tell(self.trial_hyperparams, f_val)
+        self.trial_no+=1
+        print("trial:", self.trial_no, "\n", self.trial_hyperparams)
         
     def getTopPolicies(self):
         self.top_policies = self.notebook.get_top_policies(20)
