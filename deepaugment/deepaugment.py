@@ -14,6 +14,7 @@ from os.path import dirname, realpath
 import pathlib
 import logging
 import click
+from augmenter import augment_by_policy
 
 file_path = realpath(__file__)
 dir_of_file = dirname(file_path)
