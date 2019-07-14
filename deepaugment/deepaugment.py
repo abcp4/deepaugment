@@ -166,7 +166,7 @@ class DeepAugment:
             self.data["X_train"], self.data["y_train"], *self.trial_hyperparams
         )
 
-        return augmented_data
+        return augmented_data,self.trial_hyperparams
     
     def setDataIteration(self,f_val):
         self.controller.tell(self.trial_hyperparams, f_val)
