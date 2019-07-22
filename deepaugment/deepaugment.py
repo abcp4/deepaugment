@@ -124,7 +124,7 @@ class DeepAugment:
             self.data, self.child_model, self.notebook, self.config
         )
 
-        self._evaluate_objective_func_without_augmentation()
+        #self._evaluate_objective_func_without_augmentation()
         self.trial_hyperparams = None
         self.trial_no = 0
 
