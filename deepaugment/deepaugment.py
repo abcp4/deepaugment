@@ -58,6 +58,7 @@ DEFAULT_CONFIG = {
     "model": "basiccnn",
     "method": "bayesian_optimization",
     "train_set_size": 2000,
+    "val_set_size": 2000,
     "opt_samples": 3,
     "opt_last_n_epochs": 3,
     "opt_initial_points": 10,
@@ -96,6 +97,7 @@ class DeepAugment:
                     "model": "basiccnn",
                     "method": "bayesian_optimization",
                     "train_set_size": 2000,
+                    "val_set_size": 100,
                     "opt_samples": 3,
                     "opt_last_n_epochs": 3,
                     "opt_initial_points": 10,
@@ -220,7 +222,7 @@ class DeepAugment:
         else:
             X, y = images, labels
         self.input_shape = X.shape[1:]
-        self.data = DataOp.preprocess(X, y, self.config["train_set_size"])
+        self.data = DataOp.preprocess(X, y, self.config["train_set_size"],self.config["val_set_size"])
         self.num_classes = DataOp.find_num_classes(self.data)
 
     def _do_initial_training(self):
@@ -267,6 +269,7 @@ def main(
     model,
     method,
     train_set_size,
+    val_set_size,
     opt_iterations,
     opt_samples,
     opt_last_n_epochs,
@@ -280,6 +283,7 @@ def main(
         "model" : model,
         "method" : method,
         "train_set_size" : train_set_size,
+        "val_set_size" : val_set_size,
         "opt_samples" : opt_samples,
         "opt_last_n_epochs" : opt_last_n_epochs,
         "opt_initial_points" : opt_initial_points,
