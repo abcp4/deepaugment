@@ -33,6 +33,8 @@ AUG_TYPES = [
     "shear",
     "translate-x",
     "translate-y",
+    "brighten",
+    "invert"
 ]
 def augment_type_chooser():
     """A random function to choose among augmentation types
