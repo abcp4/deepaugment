@@ -3,6 +3,22 @@
 import numpy as np
 from imgaug import augmenters as iaa
 
+import cv2
+
+def nmo(imgs,To):
+    v = 1
+    re = []
+    for img in imgs:
+        newImg = img.copy()
+        x = np.array([float(i) for i in range(img.shape[0])])
+        transform = np.ceil(np.sqrt((x/v)**2+To**2)-To)
+        for column in range(img.shape[1]):
+            for line, transformation in enumerate(transform):
+                newImg[line,column] = img[int(transformation),column]
+        re.append(newImg)
+    return np.asarray(re)
+
+    
 
 def normalize(X):
     return (X / 255.0).copy()
@@ -13,7 +29,10 @@ def denormalize(X):
     return X_dn
 
 
+
 def transform(aug_type, magnitude, X):
+    if(aug_type=="nmo"):
+        X_aug = nmo(X,magnitude*400)
     if aug_type == "crop":
         X_aug = iaa.Crop(px=(0, int(magnitude * 32))).augment_images(X)
     elif aug_type == "gaussian-blur":
