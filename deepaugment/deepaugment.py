@@ -155,19 +155,24 @@ class DeepAugment:
         return self.top_policies
 
     def getDataIteration(self):
-        self.trial_hyperparams = self.controller.ask()
+        if(self.trial_no==0):
+            print("Begin with no augmentation!!")
+            self.trial_hyperparams = ["rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0,
+                              "rotate", 0.0, "rotate", 0.0]
+        else:
+            self.trial_hyperparams = self.controller.ask()
+        """
         self.trial_hyperparams =  ['brighten',0.8921855570502091,'shear',0.857902058468807,
                                   'invert',0.5446000610299714, 'brighten',0.9562927411137008,
                                   'sharpen',0.8628617700194842,'emboss',0.12277382759592961,
                                   'dropout',0.6623048596672579,'translate-x',0.9731839138940244,
                                   'invert',0.7829575191193677,'vertical-flip', 0.9729114349444642]
         """
-        self.trial_hyperparams = ["rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0]
-        """
+        
+        
         print("parameters:",self.trial_hyperparams)
         augmented_data = augment_by_policy(
             self.data["X_train"], self.data["y_train"], *self.trial_hyperparams
