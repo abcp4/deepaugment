@@ -28,6 +28,7 @@ AUG_TYPES = [
 """
 
 AUG_TYPES = [
+    "nmo",
     "crop",
     "rotate",
     "shear",
